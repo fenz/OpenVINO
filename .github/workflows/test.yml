@@ -13,7 +13,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Latest Tag
         run: |
-            # Get the latest tag, we won't build if it's the current
             git fetch --tags
             latest_tag=$(git tag | tail -1)
             echo "latest_tag=$latest_tag" >> $GITHUB_ENV
@@ -24,8 +23,9 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
 
-            start_commit="$latest_tag"
-            if [ "$start_commit" == "" ]; then
+            start_commit="${latest_tag}"
+            if [ "${start_commit}" == "" ]; then
+              echo "in"
               start_commit=$(git rev-list --max-parents=0 HEAD)
             fi
 
