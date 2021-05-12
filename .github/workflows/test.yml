@@ -16,6 +16,7 @@ jobs:
             git fetch --tags
             latest_tag=$(git tag | tail -1)
             echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+            git status
       - uses: eWaterCycle/setup-singularity@v6
         with:
           singularity-version: 3.7.1
