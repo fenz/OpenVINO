@@ -22,13 +22,13 @@ jobs:
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-            echo "${{ github.head_ref }}"
+
             start_commit="$latest_tag"
             if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 origin/main)
+              start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only origin/main $start_commit | grep Singularity || [[ $? == 1 ]])
+            recipes=$(git diff --diff-filter=AM --name-only origin/${{ github.head_ref }} $start_commit | grep Singularity || [[ $? == 1 ]])
 
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
