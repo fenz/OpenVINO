@@ -47,10 +47,10 @@ jobs:
 
             start_commit="$latest_tag"
             if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
+              start_commit=$(git rev-list --max-parents=0 origin/main)
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | { grep Singularity || [[ $? == 1 ]]; })
+            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/main | { grep Singularity || [[ $? == 1 ]]; })
 
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
