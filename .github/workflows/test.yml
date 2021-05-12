@@ -29,8 +29,8 @@ jobs:
               start_commit=$(git rev-list --max-parents=0 HEAD)
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only HEAD $start_commit | grep Singularity || true)
-
+            recipes=$(git diff --diff-filter=AM --name-only HEAD $start_commit | { grep Singularity || [[ $? == 1 ]]; })
+            echo $recipes
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
                 echo "Building $recipe"
