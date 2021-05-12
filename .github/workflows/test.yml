@@ -16,15 +16,19 @@ jobs:
           singularity-version: 3.7.1
       - name: Build the singularity containers
         run: |
+            echo "0"
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-
+            echo "1"
+            latest_tag=$(git describe --tags --abbrev=0)
+            echo "2"
             start_commit="$latest_tag"
+            echo "3"
             if [ "$start_commit" == "" ]; then
               start_commit=$(git rev-list --max-parents=0 HEAD)
             fi
-
+            echo "4"
             recipes=$(git diff --diff-filter=AM --name-only HEAD $start_commit | grep Singularity)
-
+            echo "5"
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
                 echo "Building $recipe"
