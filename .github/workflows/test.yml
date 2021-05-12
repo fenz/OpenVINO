@@ -19,7 +19,8 @@ jobs:
             echo "0"
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             echo "1"
-            latest_tag=$(git describe --tags --abbrev=0)
+            git fetch --tags
+            latest_tag=$(git tag | tail -1)
             echo "2"
             start_commit="$latest_tag"
             echo "3"
