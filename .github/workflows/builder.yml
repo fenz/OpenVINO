@@ -39,6 +39,7 @@ jobs:
             if [ "$start_commit" == "" ]; then
               echo "in"
               start_commit=$(git rev-list --max-parents=0 origin/main)
+              git status
               git log --oneline
               git rev-list --max-parents=0 origin/main
             fi
