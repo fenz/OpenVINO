@@ -16,7 +16,6 @@ jobs:
             git fetch --tags
             latest_tag=$(git tag | tail -1)
             echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-            git status
       - uses: eWaterCycle/setup-singularity@v6
         with:
           singularity-version: 3.7.1
@@ -24,16 +23,13 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
 
-            git log --oneline
-            start_commit="${latest_tag}"
-            if [ "${start_commit}" == "" ]; then
-              echo "in"
-              start_commit=$(git rev-list --max-parents=0 HEAD)
+            start_commit="$latest_tag"
+            if [ "$start_commit" == "" ]; then
+              start_commit=$(git rev-list --max-parents=0 origin/main)
             fi
-            echo $start_commit
 
-            recipes=$(git diff --diff-filter=AM --name-only HEAD $start_commit | { grep Singularity || [[ $? == 1 ]]; })
-            echo $recipes
+            recipes=$(git diff --diff-filter=AM --name-only origin/main $start_commit | grep Singularity || [[ $? == 1 ]])
+
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
                 echo "Building $recipe"
