@@ -16,8 +16,6 @@ jobs:
             git fetch --tags
             latest_tag=$(git tag | tail -1)
             echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-            start_commit=$(git rev-list --max-parents=0 HEAD)
-            echo $start_commit
       - uses: eWaterCycle/setup-singularity@v6
         with:
           singularity-version: 3.7.1
@@ -25,6 +23,7 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
 
+            git log --oneline
             start_commit="${latest_tag}"
             if [ "${start_commit}" == "" ]; then
               echo "in"
