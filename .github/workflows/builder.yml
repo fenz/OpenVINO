@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: main
+          fetch-depth: 0
       - name: Get Latest Tag
         run: |
             # Get the latest tag, we won't build if it's the current
@@ -25,7 +28,17 @@ jobs:
             release=$(cat VERSION)
             echo "reponame=$repo" >> $GITHUB_ENV
             echo "release_tag=$release" >> $GITHUB_ENV
-
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: ${{ env.release_tag != env.latest_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.release_tag }}
+          release_name: Release ${{ env.release_tag }}
+          draft: false
+          prerelease: false
       - uses: eWaterCycle/setup-singularity@v6
         if: ${{ env.release_tag != env.latest_tag }}
         with:
@@ -37,15 +50,11 @@ jobs:
 
             start_commit="$latest_tag"
             if [ "$start_commit" == "" ]; then
-              echo "in"
               start_commit=$(git rev-list --max-parents=0 origin/main)
-              git status
-              git log --oneline
-              git rev-list --max-parents=0 origin/main
             fi
-            git diff --diff-filter=AM --name-only $start_commit origin/main
+
             recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/main | { grep Singularity || [[ $? == 1 ]]; })
-            echo "$recipes"
+
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
                 echo "Building $recipe"
@@ -65,4 +74,11 @@ jobs:
                     echo "There was an issue building $container."          
                 fi
             done
-
+      - name: Upload Release Assets
+        if: ${{ env.release_tag != env.latest_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          tag_name: ${{ env.release_tag }}
+        run: |
+          hub release edit $(find . -type f -name "*.sif" -printf "-a %p ") -m "" "$tag_name" 
