@@ -18,9 +18,9 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             git fetch
-            previous_commit=$(git log ${{ github.head_ref }} --oneline --format=%H -n 2 | tail -1)
+            previous_commit=$(git log origin/${{ github.head_ref }} --oneline --format=%H -n 2 | tail -1)
             echo "prev: ${previous_commit}"
-            workflow_changed=$(git diff --diff-filter=AM --name-only ${previous_commit} ${{ github.head_ref }})
+            workflow_changed=$(git diff --diff-filter=AM --name-only ${previous_commit} origin/${{ github.head_ref }})
             echo "WF_NAME: ${{ github.workflow }}"
             start_commit="" # "$latest_tag"
             if [ "$start_commit" == "" ]; then
