@@ -17,6 +17,7 @@ jobs:
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
+            git fetch
             git branch
             #git log --oneline origin/${{ github.head_ref }}
             #git status
