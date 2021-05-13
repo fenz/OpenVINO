@@ -19,7 +19,7 @@ jobs:
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-            git log --online
+            git log --oneline
             git status
             start_commit="$latest_tag"
             if [ "$start_commit" == "" ]; then
