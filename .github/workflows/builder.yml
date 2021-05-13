@@ -37,14 +37,14 @@ jobs:
         if: ${{ env.release_tag != env.latest_tag }}
         run: |
             if [ "$latest_tag" != "" ]; then
-              WF_FILE_CHANGE=$(git diff --diff-filter=AM --name-only ${latest_tag} origin/${{ github.head_ref }} | { grep "${WF_NAME}" || [[ $? == 1 ]]; })
+              WF_FILE_CHANGE=$(git diff --diff-filter=AM --name-only ${latest_tag} HEAD | { grep "${WF_NAME}" || [[ $? == 1 ]]; })
             fi
 
             if [[ "${latest_tag}" == "" || "${WF_FILE_CHANGE}" != "" ]]; then
               recipes=$(find . -type f -regextype posix-extended -regex ".*/Singularity(\..*)?")
               #recipes=$(find . -type f \( -name "Singularity.*" -o -name "Singularity" \))
             else
-              recipes=$(git diff --diff-filter=AM --name-only ${latest_tag} origin/${{ github.head_ref }} | { grep "Singularity" || [[ $? == 1 ]]; })
+              recipes=$(git diff --diff-filter=AM --name-only ${latest_tag} HEAD | { grep "Singularity" || [[ $? == 1 ]]; })
             fi
 
             # For each Singularity* container, build based on the prefix (tag)
