@@ -8,35 +8,37 @@ jobs:
   builder:
     name: Test Container Builds
     runs-on: ubuntu-latest
+    env:
+      WF_NAME: .github/workflows/test.yml
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Get Latest Tag
-        run: |
-            git fetch --tags
-            latest_tag=$(git tag | tail -1)
-            echo "latest_tag=$latest_tag" >> $GITHUB_ENV
       - uses: eWaterCycle/setup-singularity@v6
         with:
           singularity-version: 3.7.1
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
+            git fetch
 
-            start_commit="$latest_tag"
-            if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
+            #Check all the file changes since last commit
+            start_commit=$(git log origin/${{ github.head_ref }} --oneline --format=%H -n 2 | tail -1)
+
+            #If workflow changed in the last commit build all the container starting from beginning of the "branch"
+            WF_FILE_CHANGE=$(git diff --diff-filter=AM --name-only ${start_commit} origin/${{ github.head_ref }} | { grep "${WF_NAME}" || [[ $? == 1 ]]; })
+            if [ "${WF_FILE_CHANGE}" != "" ]; then
+              start_commit="$(git rev-list -n 1 origin/main)"
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
+            recipes=$(git diff --diff-filter=AM --name-only ${start_commit} origin/${{ github.head_ref }} | { grep Singularity || [[ $? == 1 ]]; })
 
             # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
                 echo "Building $recipe"
                 tag=$(echo "${recipe/*Singularity\./}")
                 # If we find empty, use latest
-                if [ "$tag" == "Singularity" ]; then
-                    tag=latest
+                if [ "$tag" == "$recipe" ]; then
+                    tag="latest"
                 fi
                 # Build the container and name by tag
                 echo "Tag is $tag."

@@ -9,6 +9,8 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    env:
+      WF_NAME: .github/workflows/builder.yml
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -34,6 +36,8 @@ jobs:
       - name: Build the singularity container
         if: ${{ env.release_tag != env.latest_tag }}
         run: |
+            #printenv
+            printenv | sort
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
 
             start_commit="$latest_tag"
@@ -41,7 +45,7 @@ jobs:
               start_commit=$(git rev-list --max-parents=0 HEAD)
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit HEAD| { grep Singularity || [[ $? == 1 ]]; })
+            recipes=$(git diff --diff-filter=AM --name-only $start_commit HEAD | { grep Singularity || [[ $? == 1 ]]; })
 
             # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
