@@ -36,16 +36,16 @@ jobs:
       - name: Build the singularity container
         if: ${{ env.release_tag != env.latest_tag }}
         run: |
-            #printenv
-            printenv | sort
-            repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-
-            start_commit="$latest_tag"
-            if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 HEAD)
+            if [ "$latest_tag" != "" ]; then
+              WF_FILE_CHANGE=$(git diff --diff-filter=AM --name-only ${latest_tag} origin/${{ github.head_ref }} | { grep "${WF_NAME}" || [[ $? == 1 ]]; })
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit HEAD | { grep Singularity || [[ $? == 1 ]]; })
+            if [[ "${latest_tag}" == "" || "${WF_FILE_CHANGE}" != "" ]]; then
+              recipes=$(find . -type f -regextype posix-extended -regex ".*/Singularity(\..*)?")
+              #recipes=$(find . -type f \( -name "Singularity.*" -o -name "Singularity" \))
+            else
+              recipes=$(git diff --diff-filter=AM --name-only ${latest_tag} origin/${{ github.head_ref }} | { grep "Singularity" || [[ $? == 1 ]]; })
+            fi
 
             # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
@@ -53,11 +53,11 @@ jobs:
                 tag=$(echo "${recipe/*Singularity\./}")
                 # If we find empty, use latest
                 if [ "$tag" == "Singularity" ]; then
-                    tag=latest
+                    tag="latest"
                 fi
                 # Build the container and name by tag
                 echo "Tag is $tag."
-                container="$repo:$tag.sif"
+                container="$reponame:$tag.sif"
                 singularity build --fakeroot container.sif "$recipe"
                 if [ "$?" == "0" ]; then
                     echo "Successfully built container $container."
