@@ -11,23 +11,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
       - uses: eWaterCycle/setup-singularity@v6
         with:
           singularity-version: 3.7.1
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-            git log --oneline origin/${{ github.head_ref }}
-            git status
-            start_commit="" # "$latest_tag"
-            if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
-            fi
+            git branch
+            #git log --oneline origin/${{ github.head_ref }}
+            #git status
+            #start_commit="" # "$latest_tag"
+            #if [ "$start_commit" == "" ]; then
+            #  start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
+            #fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
-            echo "RECIPES: -$recipes-"
+            #recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
+            #echo "RECIPES: -$recipes-"
             recipes=""
             # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
