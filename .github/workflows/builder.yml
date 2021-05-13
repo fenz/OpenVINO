@@ -64,10 +64,12 @@ jobs:
                     echo "There was an issue building $container."          
                 fi
             done
+            images_built=$(find . -type f -name "*.sif")
+            echo "images_built=$images_built" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        if: ${{ env.release_tag != env.latest_tag }}
+        if: ${{ env.images_built != "" }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -76,10 +78,10 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload Release Assets
-        if: ${{ env.release_tag != env.latest_tag }}
+        if: ${{ env.images_built != "" }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
           tag_name: ${{ env.release_tag }}
         run: |
-          hub release edit $(find . -type f -name "*.sif" -printf "-a %p ") -m "" "$tag_name" 
+          hub release edit $(for image in $images_built; do echo "-a $image"; done) -m "" "$tag_name"
