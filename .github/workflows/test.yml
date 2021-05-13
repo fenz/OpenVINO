@@ -18,7 +18,9 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             git fetch
-            workflow_changed=$(git diff --diff-filter=AM --name-only HEAD^1 origin/2019-OMP)
+            previous_commit=$(git rev-list --parents -n 2 origin/${{ github.head_ref }} | tail -1)
+            echo "prev: ${previous_commit}"
+            workflow_changed=$(git diff --diff-filter=AM --name-only ${previous_commit} origin/${{ github.head_ref }})
             echo "WF_NAME: ${{ github.head_ref }}"
             git log --oneline origin/${{ github.head_ref }}
             git status
