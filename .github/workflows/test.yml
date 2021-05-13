@@ -19,15 +19,15 @@ jobs:
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             git fetch
             git branch
-            #git log --oneline origin/${{ github.head_ref }}
-            #git status
-            #start_commit="" # "$latest_tag"
-            #if [ "$start_commit" == "" ]; then
-            #  start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
-            #fi
+            git log --oneline origin/${{ github.head_ref }}
+            git status
+            start_commit="" # "$latest_tag"
+            if [ "$start_commit" == "" ]; then
+              start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
+            fi
 
-            #recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
-            #echo "RECIPES: -$recipes-"
+            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
+            echo "RECIPES: -$recipes-"
             recipes=""
             # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
