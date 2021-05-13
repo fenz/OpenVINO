@@ -18,7 +18,8 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             git fetch
-            git branch
+            workflow_changed=$(git diff --diff-filter=AM --name-only HEAD^1 origin/2019-OMP)
+            echo "WF_NAME: ${{ github.head_ref }}"
             git log --oneline origin/${{ github.head_ref }}
             git status
             start_commit="" # "$latest_tag"
