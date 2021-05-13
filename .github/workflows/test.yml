@@ -19,9 +19,9 @@ jobs:
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
-            git log --oneline
+            git log --oneline origin/${{ github.head_ref }}
             git status
-            start_commit="$latest_tag"
+            start_commit="" # "$latest_tag"
             if [ "$start_commit" == "" ]; then
               start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
             fi
