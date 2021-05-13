@@ -66,5 +66,15 @@ jobs:
             done
             images_built=$(find . -type f -name "*.sif")
             echo "images_built=$images_built" >> $GITHUB_ENV
-            echo "images_built=$images_built"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: ${{ env.images_built != "" }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.release_tag }}
+          release_name: Release ${{ env.release_tag }}
+          draft: false
+          prerelease: false
 
