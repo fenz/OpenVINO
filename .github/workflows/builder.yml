@@ -28,17 +28,7 @@ jobs:
             release=$(cat VERSION)
             echo "reponame=$repo" >> $GITHUB_ENV
             echo "release_tag=$release" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        if: ${{ env.release_tag != env.latest_tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.release_tag }}
-          release_name: Release ${{ env.release_tag }}
-          draft: false
-          prerelease: false
+
       - uses: eWaterCycle/setup-singularity@v6
         if: ${{ env.release_tag != env.latest_tag }}
         with:
@@ -50,10 +40,10 @@ jobs:
 
             start_commit="$latest_tag"
             if [ "$start_commit" == "" ]; then
-              start_commit=$(git rev-list --max-parents=0 origin/main)
+              start_commit=$(git rev-list --max-parents=0 HEAD)
             fi
 
-            recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/main | { grep Singularity || [[ $? == 1 ]]; })
+            recipes=$(git diff --diff-filter=AM --name-only $start_commit HEAD| { grep Singularity || [[ $? == 1 ]]; })
 
             # For each Singularity* container, build based on the prefix (tag) 
             for recipe in $recipes; do
@@ -74,6 +64,17 @@ jobs:
                     echo "There was an issue building $container."          
                 fi
             done
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: ${{ env.release_tag != env.latest_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.release_tag }}
+          release_name: Release ${{ env.release_tag }}
+          draft: false
+          prerelease: false
       - name: Upload Release Assets
         if: ${{ env.release_tag != env.latest_tag }}
         env:
