@@ -8,6 +8,8 @@ jobs:
   builder:
     name: Test Container Builds
     runs-on: ubuntu-latest
+    env:
+      WF_NAME: test.yml
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -17,6 +19,8 @@ jobs:
       - name: Build the singularity containers
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
+            echo "PATH: ${GITHUB_ACTION_PATH}"
+            echo "WF_NAME: ${WF_NAME}"
             git fetch
             previous_commit=$(git log origin/${{ github.head_ref }} --oneline --format=%H -n 2 | tail -1)
             echo "prev: ${previous_commit}"
