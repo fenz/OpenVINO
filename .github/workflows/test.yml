@@ -18,12 +18,10 @@ jobs:
         run: |
             repo=$(echo "${GITHUB_REPOSITORY/\//-}")
             git fetch
-            previous_commit=$(git rev-list --parents -n 2 origin/${{ github.head_ref }} | tail -1)
+            previous_commit=$(git log ${{ github.head_ref }} --oneline --format=%H -n 2 | tail -1)
             echo "prev: ${previous_commit}"
-            workflow_changed=$(git diff --diff-filter=AM --name-only ${previous_commit} origin/${{ github.head_ref }})
-            echo "WF_NAME: ${{ github.head_ref }}"
-            git log --oneline origin/${{ github.head_ref }}
-            git status
+            workflow_changed=$(git diff --diff-filter=AM --name-only ${previous_commit} ${{ github.head_ref }})
+            echo "WF_NAME: ${{ github.workflow }}"
             start_commit="" # "$latest_tag"
             if [ "$start_commit" == "" ]; then
               start_commit=$(git rev-list --max-parents=0 origin/${{ github.head_ref }})
