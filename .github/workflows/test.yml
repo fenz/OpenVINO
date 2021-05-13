@@ -28,8 +28,9 @@ jobs:
             WF_FILE_CHANGE=$(git diff --diff-filter=AM --name-only ${start_commit} origin/${{ github.head_ref }} | { grep "${WF_NAME}" || [[ $? == 1 ]]; })
             if [ "${WF_FILE_CHANGE}" != "" ]; then
               start_commit="$(git rev-list -n 1 origin/main)"
+              start_commit="$(git rev-list --max-parents=0 origin/${{ github.head_ref }})"
             fi
-
+            echo "START: ${start_commit}"
             recipes=$(git diff --diff-filter=AM --name-only ${start_commit} origin/${{ github.head_ref }} | { grep Singularity || [[ $? == 1 ]]; })
             echo "RECIPES: -$recipes-"
 
