@@ -30,7 +30,7 @@ jobs:
 
             recipes=$(git diff --diff-filter=AM --name-only $start_commit origin/${{ github.head_ref }} | grep Singularity || [[ $? == 1 ]])
 
-            # For each Singularity* container, build based on the prefix (tag) 
+            # For each Singularity* container, build based on the prefix (tag)
             for recipe in $recipes; do
                 echo "Building $recipe"
                 tag=$(echo "${recipe/*Singularity\./}")
@@ -43,11 +43,11 @@ jobs:
                 container="$repo:$tag.sif"
                 singularity build --fakeroot container.sif "$recipe"
                 if [ "$?" == "0" ]; then
-                    echo "Successfully built container $container."                
+                    echo "Successfully built container $container."
                     mv container.sif "$container"
                 else
-                    echo "There was an issue building $container."          
-                fi                
+                    echo "There was an issue building $container."
+                fi
             done
       - name: Run Additional Tests
         run: |
